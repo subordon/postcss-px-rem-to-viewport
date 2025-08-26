@@ -1,43 +1,11 @@
 import type { PluginOptions } from './index'
 
-const PX_REGEX = /(-?[\d.]+)px/g
-const REM_REGEX = /(-?[\d.]+)rem/g
+const COMBINED_REGEX = /(-?[\d.]+)(px|rem)/g
 
-const convertPxToViewport = (value: string, { viewportWidth, unitPrecision, unit, minPixelValue }: Required<PluginOptions>) => {
-  if (viewportWidth <= 0) {
-    throw new Error('viewportWidth must be greater than 0')
-  }
-  return value.replace(PX_REGEX, (_, pxValue) => {
-    const num = parseFloat(pxValue)
-    if (isNaN(num)) return _
-    
-    // 检查是否小于最小转换值阈值
-    if (Math.abs(num) < minPixelValue) {
-      return _
-    }
-    
-    const viewportValue = (num / viewportWidth) * 100
-    return `${Number(viewportValue.toFixed(unitPrecision))}${unit}`
-  })
-}
-
-const convertRemToViewport = (
-  value: string,
-  { baseFontSize, viewportWidth, unitPrecision, unit, minPixelValue }: Required<PluginOptions>
-) => {
-  return value.replace(REM_REGEX, (_, remValue) => {
-    const num = parseFloat(remValue)
-    if (isNaN(num)) return _
-    
-    // 将 rem 值转换为 px 值，然后检查是否小于最小转换值阈值
-    const pxValue = num * baseFontSize
-    if (Math.abs(pxValue) < minPixelValue) {
-      return _
-    }
-    
-    const viewportValue = (pxValue / viewportWidth) * 100
-    return `${Number(viewportValue.toFixed(unitPrecision))}${unit}`
-  })
+const formatNumber = (num: number, precision: number): string => {
+  const factor = Math.pow(10, precision)
+  const rounded = Math.round(num * factor) / factor
+  return rounded.toString()
 }
 
 export const processValue = (value: string, options: Required<PluginOptions>) => {
@@ -45,12 +13,19 @@ export const processValue = (value: string, options: Required<PluginOptions>) =>
     return value
   }
 
-  let result = value
-  if (value.includes('px')) {
-    result = convertPxToViewport(result, options)
-  }
-  if (result.includes('rem')) {
-    result = convertRemToViewport(result, options)
-  }
-  return result
+  const viewportRatio = 100 / options.designWidth
+
+  return value.replace(COMBINED_REGEX, (match, numStr, unit) => {
+    const num = parseFloat(numStr)
+    if (isNaN(num)) return match
+
+    const pxValue = unit === 'px' ? num : num * options.baseFontSize
+
+    if (Math.abs(pxValue) < options.minPixelValue) {
+      return match
+    }
+
+    const viewportValue = pxValue * viewportRatio
+    return `${formatNumber(viewportValue, options.unitPrecision)}${options.unit}`
+  })
 }

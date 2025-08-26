@@ -5,7 +5,7 @@ import plugin from '../src'
 import { processValue } from '../src/utils'
 
 const defaultOptions = {
-  viewportWidth: 375,
+  designWidth: 375,
   baseFontSize: 16,
   unitPrecision: 5,
   unit: 'vw',
@@ -50,8 +50,8 @@ describe('processValue utility', () => {
 })
 
 describe('configuration options', () => {
-  test('different viewport width', () => {
-    const options = { ...defaultOptions, viewportWidth: 750 }
+  test('different design width', () => {
+    const options = { ...defaultOptions, designWidth: 750 }
     expect(processValue('75px', options)).toBe('10vw')
   })
 
@@ -126,5 +126,30 @@ describe('PostCSS plugin integration', () => {
     const result = await postcss([plugin({ minPixelValue: 3 })]).process(css, { from: undefined })
 
     expect(result.css).toBe('.test { width: 1px; height: 1.33333vw; margin: 2px; }')
+  })
+})
+
+describe('performance optimizations', () => {
+  test('combined regex handles mixed units correctly', () => {
+    expect(processValue('10px 2rem 15px 1.5rem', defaultOptions)).toBe('2.66667vw 8.53333vw 4vw 6.4vw')
+    expect(processValue('border: 1px solid; padding: 10px 2rem', defaultOptions)).toBe('border: 0.26667vw solid; padding: 2.66667vw 8.53333vw')
+  })
+
+  test('performance with large values', () => {
+    const largeValue = '10px 20px 30px 40px 50px 1rem 2rem 3rem 4rem 5rem'.repeat(10)
+    const result = processValue(largeValue, defaultOptions)
+    
+    // 验证结果包含正确转换的值
+    expect(result).toContain('2.66667vw') // 10px
+    expect(result).toContain('4.26667vw') // 1rem
+    expect(result).not.toContain('px')
+    expect(result).not.toContain('rem')
+  })
+
+  test('single regex processes all units in one pass', () => {
+    const mixedValue = 'margin: 10px 2rem; padding: 5px 1rem; border: 1px solid'
+    const result = processValue(mixedValue, defaultOptions)
+    
+    expect(result).toBe('margin: 2.66667vw 8.53333vw; padding: 1.33333vw 4.26667vw; border: 0.26667vw solid')
   })
 })

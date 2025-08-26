@@ -6,7 +6,7 @@ export interface PluginOptions {
    * 设计稿宽度
    * @default 375
    */
-  viewportWidth?: number
+  designWidth?: number
   /**
    * 转换精度
    * @default 5
@@ -30,7 +30,7 @@ export interface PluginOptions {
 }
 
 const plugin = (options: PluginOptions = {}) => {
-  const { viewportWidth = 375, baseFontSize = 16, unitPrecision = 5, unit = 'vw', minPixelValue = 1 } = options
+  const { designWidth = 375, baseFontSize = 16, unitPrecision = 5, unit = 'vw', minPixelValue = 1 } = options
 
   return {
     postcssPlugin: 'postcss-px-rem-to-viewport',
@@ -38,7 +38,7 @@ const plugin = (options: PluginOptions = {}) => {
       css.walkDecls((decl) => {
         if (decl.value) {
           decl.value = processValue(decl.value, {
-            viewportWidth,
+            designWidth,
             baseFontSize,
             unitPrecision,
             unit,
