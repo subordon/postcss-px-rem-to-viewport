@@ -1,4 +1,4 @@
-import { Root } from 'postcss'
+import type { Root } from 'postcss'
 import { processValue } from './utils'
 
 export interface PluginOptions {
@@ -22,10 +22,15 @@ export interface PluginOptions {
    * @default vw
    */
   unit?: 'vw' | 'vmin'
+  /**
+   * 最小转换值阈值 (px)，小于此值的单位不会被转换
+   * @default 1
+   */
+  minPixelValue?: number
 }
 
 const plugin = (options: PluginOptions = {}) => {
-  const { viewportWidth = 375, baseFontSize = 16, unitPrecision = 5, unit = 'vw' } = options
+  const { viewportWidth = 375, baseFontSize = 16, unitPrecision = 5, unit = 'vw', minPixelValue = 1 } = options
 
   return {
     postcssPlugin: 'postcss-px-rem-to-viewport',
@@ -36,7 +41,8 @@ const plugin = (options: PluginOptions = {}) => {
             viewportWidth,
             baseFontSize,
             unitPrecision,
-            unit
+            unit,
+            minPixelValue
           })
         }
       })

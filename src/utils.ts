@@ -3,13 +3,19 @@ import type { PluginOptions } from './index'
 const PX_REGEX = /(-?[\d.]+)px/g
 const REM_REGEX = /(-?[\d.]+)rem/g
 
-const convertPxToViewport = (value: string, { viewportWidth, unitPrecision, unit }: Required<PluginOptions>) => {
+const convertPxToViewport = (value: string, { viewportWidth, unitPrecision, unit, minPixelValue }: Required<PluginOptions>) => {
   if (viewportWidth <= 0) {
     throw new Error('viewportWidth must be greater than 0')
   }
   return value.replace(PX_REGEX, (_, pxValue) => {
     const num = parseFloat(pxValue)
     if (isNaN(num)) return _
+    
+    // 检查是否小于最小转换值阈值
+    if (Math.abs(num) < minPixelValue) {
+      return _
+    }
+    
     const viewportValue = (num / viewportWidth) * 100
     return `${Number(viewportValue.toFixed(unitPrecision))}${unit}`
   })
@@ -17,12 +23,19 @@ const convertPxToViewport = (value: string, { viewportWidth, unitPrecision, unit
 
 const convertRemToViewport = (
   value: string,
-  { baseFontSize, viewportWidth, unitPrecision, unit }: Required<PluginOptions>
+  { baseFontSize, viewportWidth, unitPrecision, unit, minPixelValue }: Required<PluginOptions>
 ) => {
   return value.replace(REM_REGEX, (_, remValue) => {
     const num = parseFloat(remValue)
     if (isNaN(num)) return _
-    const viewportValue = ((num * baseFontSize) / viewportWidth) * 100
+    
+    // 将 rem 值转换为 px 值，然后检查是否小于最小转换值阈值
+    const pxValue = num * baseFontSize
+    if (Math.abs(pxValue) < minPixelValue) {
+      return _
+    }
+    
+    const viewportValue = (pxValue / viewportWidth) * 100
     return `${Number(viewportValue.toFixed(unitPrecision))}${unit}`
   })
 }

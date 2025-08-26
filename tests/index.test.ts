@@ -8,7 +8,8 @@ const defaultOptions = {
   viewportWidth: 375,
   baseFontSize: 16,
   unitPrecision: 5,
-  unit: 'vw'
+  unit: 'vw',
+  minPixelValue: 0
 } satisfies PluginOptions
 
 describe('processValue utility', () => {
@@ -68,6 +69,27 @@ describe('configuration options', () => {
     const options = { ...defaultOptions, unit: 'vmin' as const }
     expect(processValue('160px', options)).toBe('42.66667vmin')
   })
+
+  test('minPixelValue threshold for px', () => {
+    const options = { ...defaultOptions, minPixelValue: 2 }
+    expect(processValue('1px', options)).toBe('1px') // 小于阈值，不转换
+    expect(processValue('-1.5px', options)).toBe('-1.5px') // 绝对值小于阈值，不转换
+    expect(processValue('2px', options)).toBe('0.53333vw') // 等于阈值，转换
+    expect(processValue('3px', options)).toBe('0.8vw') // 大于阈值，转换
+  })
+
+  test('minPixelValue threshold for rem', () => {
+    const options = { ...defaultOptions, minPixelValue: 10, baseFontSize: 16 }
+    expect(processValue('0.5rem', options)).toBe('0.5rem') // 0.5 * 16 = 8px < 10px，不转换
+    expect(processValue('0.625rem', options)).toBe('2.66667vw') // 0.625 * 16 = 10px >= 10px，转换
+    expect(processValue('1rem', options)).toBe('4.26667vw') // 1 * 16 = 16px > 10px，转换
+  })
+
+  test('minPixelValue with mixed values', () => {
+    const options = { ...defaultOptions, minPixelValue: 2 }
+    expect(processValue('1px 3px 1.5px 4px', options)).toBe('1px 0.8vw 1.5px 1.06667vw')
+    expect(processValue('margin: 1px 10px', options)).toBe('margin: 1px 2.66667vw')
+  })
 })
 
 describe('PostCSS plugin integration', () => {
@@ -97,5 +119,12 @@ describe('PostCSS plugin integration', () => {
     const result = await postcss([plugin()]).process(css, { from: undefined })
 
     expect(result.css).toBe('.test { width: 26.66667vw; }')
+  })
+
+  test('works with minPixelValue option', async () => {
+    const css = '.test { width: 1px; height: 5px; margin: 2px; }'
+    const result = await postcss([plugin({ minPixelValue: 3 })]).process(css, { from: undefined })
+
+    expect(result.css).toBe('.test { width: 1px; height: 1.33333vw; margin: 2px; }')
   })
 })
