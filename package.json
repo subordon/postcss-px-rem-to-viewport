@@ -1,0 +1,44 @@
+{
+  "name": "postcss-px-rem-to-viewport",
+  "version": "0.0.0",
+  "description": "PostCSS plugin to convert px and rem to viewport units (vw, vh, vmin, vmax)",
+  "type": "module",
+  "license": "MIT",
+  "homepage": "https://github.com/subordon/postcss-px-rem-to-viewport#readme",
+  "bugs": {
+    "url": "https://github.com/subordon/postcss-px-rem-to-viewport/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/subordon/postcss-px-rem-to-viewport.git"
+  },
+  "author": "bordon <1078464063@qq.com>",
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit",
+    "release": "bumpp && npm publish"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.17",
+    "bumpp": "^10.1.0",
+    "postcss": "^8.5.6",
+    "tsdown": "^0.11.9",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.3"
+  }
+}

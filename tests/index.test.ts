@@ -1,0 +1,101 @@
+import { describe, expect, test } from 'vitest'
+import postcss from 'postcss'
+import { type PluginOptions } from '../src'
+import plugin from '../src'
+import { processValue } from '../src/utils'
+
+const defaultOptions = {
+  viewportWidth: 375,
+  baseFontSize: 16,
+  unitPrecision: 5,
+  unit: 'vw'
+} satisfies PluginOptions
+
+describe('processValue utility', () => {
+  test('px -> vw', () => {
+    expect(processValue('160px', defaultOptions)).toBe('42.66667vw')
+  })
+
+  test('rem -> vw', () => {
+    expect(processValue('10rem', defaultOptions)).toBe('42.66667vw')
+  })
+
+  test('edge cases', () => {
+    expect(processValue('0px', defaultOptions)).toBe('0vw')
+    expect(processValue('-10px', defaultOptions)).toBe('-2.66667vw')
+    expect(processValue('1.5px', defaultOptions)).toBe('0.4vw')
+    expect(processValue('0.5rem', defaultOptions)).toBe('2.13333vw')
+    expect(processValue('-2rem', defaultOptions)).toBe('-8.53333vw')
+  })
+
+  test('mixed values', () => {
+    expect(processValue('10px 20rem', defaultOptions)).toBe('2.66667vw 85.33333vw')
+    expect(processValue('margin: 10px 5rem 20px 2rem', defaultOptions)).toBe(
+      'margin: 2.66667vw 21.33333vw 5.33333vw 8.53333vw'
+    )
+  })
+
+  test('no conversion needed', () => {
+    expect(processValue('50vw', defaultOptions)).toBe('50vw')
+    expect(processValue('auto', defaultOptions)).toBe('auto')
+    expect(processValue('100%', defaultOptions)).toBe('100%')
+    expect(processValue('inherit', defaultOptions)).toBe('inherit')
+  })
+
+  test('complex values', () => {
+    expect(processValue('calc(100px + 2rem)', defaultOptions)).toBe('calc(26.66667vw + 8.53333vw)')
+    expect(processValue('rgba(255, 255, 255, 0.5) 10px', defaultOptions)).toBe('rgba(255, 255, 255, 0.5) 2.66667vw')
+  })
+})
+
+describe('configuration options', () => {
+  test('different viewport width', () => {
+    const options = { ...defaultOptions, viewportWidth: 750 }
+    expect(processValue('75px', options)).toBe('10vw')
+  })
+
+  test('different base font size', () => {
+    const options = { ...defaultOptions, baseFontSize: 20 }
+    expect(processValue('1rem', options)).toBe('5.33333vw')
+  })
+
+  test('different unit precision', () => {
+    const options = { ...defaultOptions, unitPrecision: 2 }
+    expect(processValue('160px', options)).toBe('42.67vw')
+  })
+
+  test('vmin unit', () => {
+    const options = { ...defaultOptions, unit: 'vmin' as const }
+    expect(processValue('160px', options)).toBe('42.66667vmin')
+  })
+})
+
+describe('PostCSS plugin integration', () => {
+  test('transforms CSS declarations', async () => {
+    const css = '.test { width: 100px; height: 2rem; margin: 10px 5rem; }'
+    const result = await postcss([plugin(defaultOptions)]).process(css, { from: undefined })
+
+    expect(result.css).toBe('.test { width: 26.66667vw; height: 8.53333vw; margin: 2.66667vw 21.33333vw; }')
+  })
+
+  test('handles multiple selectors', async () => {
+    const css = '.a { font-size: 16px; } .b { padding: 1rem; }'
+    const result = await postcss([plugin(defaultOptions)]).process(css, { from: undefined })
+
+    expect(result.css).toBe('.a { font-size: 4.26667vw; } .b { padding: 4.26667vw; }')
+  })
+
+  test('preserves non-convertible values', async () => {
+    const css = '.test { color: red; display: flex; width: 100%; height: 50vh; }'
+    const result = await postcss([plugin(defaultOptions)]).process(css, { from: undefined })
+
+    expect(result.css).toBe('.test { color: red; display: flex; width: 100%; height: 50vh; }')
+  })
+
+  test('works with default options', async () => {
+    const css = '.test { width: 100px; }'
+    const result = await postcss([plugin()]).process(css, { from: undefined })
+
+    expect(result.css).toBe('.test { width: 26.66667vw; }')
+  })
+})
