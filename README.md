@@ -253,12 +253,3 @@ MIT © [bordon](https://github.com/subordon)
 ## 贡献
 
 欢迎提交 Issue 和 Pull Request！
-
-## 更新日志
-
-### 0.0.0
-
-- 初始版本
-- 支持 px 和 rem 转换为视口单位
-- 支持 vw 和 vmin 单位
-- 完整的 TypeScript 支持

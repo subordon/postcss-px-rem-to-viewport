@@ -7,7 +7,7 @@ A PostCSS plugin that converts `px` and `rem` units in CSS to viewport units (`v
 ## Features
 
 - ✅ Convert `px` to viewport units
-- ✅ Convert `rem` to viewport units  
+- ✅ Convert `rem` to viewport units
 - ✅ Support for `vw` and `vmin` units
 - ✅ Configurable conversion precision
 - ✅ Configurable viewport width and base font size
@@ -37,10 +37,10 @@ bun add -d postcss-px-rem-to-viewport
 module.exports = {
   plugins: [
     require('postcss-px-rem-to-viewport')({
-      viewportWidth: 375,    // Design draft width
-      baseFontSize: 16,      // Root element font size
-      unitPrecision: 5,      // Conversion precision
-      unit: 'vw'             // Target unit
+      viewportWidth: 375, // Design draft width
+      baseFontSize: 16, // Root element font size
+      unitPrecision: 5, // Conversion precision
+      unit: 'vw' // Target unit
     })
   ]
 }
@@ -107,12 +107,12 @@ export default defineConfig({
 
 ## Configuration Options
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `viewportWidth` | `number` | `375` | Design draft width (px) |
-| `baseFontSize` | `number` | `16` | Root element font size (px), used for rem conversion |
-| `unitPrecision` | `number` | `5` | Decimal precision of conversion result |
-| `unit` | `'vw' \| 'vmin'` | `'vw'` | Target conversion unit |
+| Option          | Type             | Default | Description                                          |
+| --------------- | ---------------- | ------- | ---------------------------------------------------- |
+| `viewportWidth` | `number`         | `375`   | Design draft width (px)                              |
+| `baseFontSize`  | `number`         | `16`    | Root element font size (px), used for rem conversion |
+| `unitPrecision` | `number`         | `5`     | Decimal precision of conversion result               |
+| `unit`          | `'vw' \| 'vmin'` | `'vw'`  | Target conversion unit                               |
 
 ## Conversion Examples
 
@@ -153,10 +153,12 @@ export default defineConfig({
 ## Conversion Rules
 
 ### px Conversion
+
 - Formula: `(px value / viewport width) * 100 + unit`
 - Example: `10px` → `(10 / 375) * 100 = 2.66667vw`
 
-### rem Conversion  
+### rem Conversion
+
 - Formula: `((rem value * base font size) / viewport width) * 100 + unit`
 - Example: `1rem` → `((1 * 16) / 375) * 100 = 4.26667vw`
 
@@ -200,6 +202,7 @@ interface PluginOptions {
 ### Q: Why choose this plugin?
 
 A: Compared to other similar plugins, this plugin has the following advantages:
+
 - Supports both px and rem conversion simultaneously
 - Full TypeScript support
 - Zero runtime dependencies
@@ -208,6 +211,7 @@ A: Compared to other similar plugins, this plugin has the following advantages:
 ### Q: How are values that don't need conversion handled?
 
 A: The plugin will automatically skip the following cases:
+
 - Values that are already viewport units (vw, vh, vmin, vmax)
 - Percentages, keywords, and other non-numeric units
 - Invalid numeric values
@@ -249,11 +253,3 @@ MIT © [bordon](https://github.com/subordon)
 ## Contributing
 
 Issues and Pull Requests are welcome!
-
-## Changelog
-
-### 0.0.0
-- Initial version
-- Support for px and rem to viewport unit conversion
-- Support for vw and vmin units
-- Full TypeScript support
