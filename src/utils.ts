@@ -8,7 +8,7 @@ const formatNumber = (num: number, precision: number): string => {
   return rounded.toString()
 }
 
-export const processValue = (value: string, options: Required<PluginOptions>) => {
+export const transform = (value: string, options: Required<PluginOptions> & { designWidth: number }) => {
   if (!value.includes('px') && !value.includes('rem')) {
     return value
   }

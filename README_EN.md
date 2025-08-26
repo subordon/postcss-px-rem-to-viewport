@@ -37,10 +37,11 @@ bun add -d postcss-px-rem-to-viewport
 module.exports = {
   plugins: [
     require('postcss-px-rem-to-viewport')({
-      viewportWidth: 375, // Design draft width
+      designWidth: 375, // Design draft width
       baseFontSize: 16, // Root element font size
       unitPrecision: 5, // Conversion precision
-      unit: 'vw' // Target unit
+      unit: 'vw', // Target unit
+      minPixelValue: 1 // Minimum pixel value threshold
     })
   ]
 }
@@ -65,10 +66,11 @@ module.exports = {
                   [
                     'postcss-px-rem-to-viewport',
                     {
-                      viewportWidth: 375,
+                      designWidth: 375,
                       baseFontSize: 16,
                       unitPrecision: 5,
-                      unit: 'vw'
+                      unit: 'vw',
+                      minPixelValue: 1
                     }
                   ]
                 ]
@@ -94,10 +96,11 @@ export default defineConfig({
     postcss: {
       plugins: [
         postcssPxRemToViewport({
-          viewportWidth: 375,
+          designWidth: 375,
           baseFontSize: 16,
           unitPrecision: 5,
-          unit: 'vw'
+          unit: 'vw',
+          minPixelValue: 1
         })
       ]
     }
@@ -107,12 +110,13 @@ export default defineConfig({
 
 ## Configuration Options
 
-| Option          | Type             | Default | Description                                          |
-| --------------- | ---------------- | ------- | ---------------------------------------------------- |
-| `viewportWidth` | `number`         | `375`   | Design draft width (px)                              |
-| `baseFontSize`  | `number`         | `16`    | Root element font size (px), used for rem conversion |
-| `unitPrecision` | `number`         | `5`     | Decimal precision of conversion result               |
-| `unit`          | `'vw' \| 'vmin'` | `'vw'`  | Target conversion unit                               |
+| Option          | Type             | Default | Description                                                         |
+| --------------- | ---------------- | ------- | ------------------------------------------------------------------- |
+| `designWidth`   | `number`         | `375`   | Design draft width (px)                                             |
+| `baseFontSize`  | `number`         | `16`    | Root element font size (px), used for rem conversion                |
+| `unitPrecision` | `number`         | `5`     | Decimal precision of conversion result                              |
+| `unit`          | `'vw' \| 'vmin'` | `'vw'`  | Target conversion unit                                              |
+| `minPixelValue` | `number`         | `1`     | Minimum pixel value threshold, values below this won't be converted |
 
 ## Conversion Examples
 
@@ -154,12 +158,12 @@ export default defineConfig({
 
 ### px Conversion
 
-- Formula: `(px value / viewport width) * 100 + unit`
+- Formula: `(px value / design width) * 100 + unit`
 - Example: `10px` → `(10 / 375) * 100 = 2.66667vw`
 
 ### rem Conversion
 
-- Formula: `((rem value * base font size) / viewport width) * 100 + unit`
+- Formula: `((rem value * base font size) / design width) * 100 + unit`
 - Example: `1rem` → `((1 * 16) / 375) * 100 = 4.26667vw`
 
 ## API Documentation
@@ -178,7 +182,7 @@ interface PluginOptions {
    * Design draft width
    * @default 375
    */
-  viewportWidth?: number
+  designWidth?: number | (input: string) => number
   /**
    * Conversion precision
    * @default 5
@@ -194,6 +198,11 @@ interface PluginOptions {
    * @default vw
    */
   unit?: 'vw' | 'vmin'
+  /**
+   * Minimum pixel value threshold (px), units below this value won't be converted
+   * @default 1
+   */
+  minPixelValue?: number
 }
 ```
 

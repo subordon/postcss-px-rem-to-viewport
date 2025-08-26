@@ -37,10 +37,11 @@ bun add -d postcss-px-rem-to-viewport
 module.exports = {
   plugins: [
     require('postcss-px-rem-to-viewport')({
-      viewportWidth: 375, // 设计稿宽度
+      designWidth: 375, // 设计稿宽度
       baseFontSize: 16, // 根元素字体大小
       unitPrecision: 5, // 转换精度
-      unit: 'vw' // 转换单位
+      unit: 'vw', // 转换单位
+      minPixelValue: 1 // 最小转换值阈值
     })
   ]
 }
@@ -65,10 +66,11 @@ module.exports = {
                   [
                     'postcss-px-rem-to-viewport',
                     {
-                      viewportWidth: 375,
+                      designWidth: 375,
                       baseFontSize: 16,
                       unitPrecision: 5,
-                      unit: 'vw'
+                      unit: 'vw',
+                      minPixelValue: 1
                     }
                   ]
                 ]
@@ -94,10 +96,11 @@ export default defineConfig({
     postcss: {
       plugins: [
         postcssPxRemToViewport({
-          viewportWidth: 375,
+          designWidth: 375,
           baseFontSize: 16,
           unitPrecision: 5,
-          unit: 'vw'
+          unit: 'vw',
+          minPixelValue: 1
         })
       ]
     }
@@ -107,12 +110,13 @@ export default defineConfig({
 
 ## 配置选项
 
-| 选项            | 类型             | 默认值 | 描述                               |
-| --------------- | ---------------- | ------ | ---------------------------------- |
-| `viewportWidth` | `number`         | `375`  | 设计稿宽度 (px)                    |
-| `baseFontSize`  | `number`         | `16`   | 根元素字体大小 (px)，用于 rem 转换 |
-| `unitPrecision` | `number`         | `5`    | 转换结果的小数位精度               |
-| `unit`          | `'vw' \| 'vmin'` | `'vw'` | 转换目标单位                       |
+| 选项            | 类型             | 默认值 | 描述                                |
+| --------------- | ---------------- | ------ | ----------------------------------- |
+| `designWidth`   | `number`         | `375`  | 设计稿宽度 (px)                     |
+| `baseFontSize`  | `number`         | `16`   | 根元素字体大小 (px)，用于 rem 转换  |
+| `unitPrecision` | `number`         | `5`    | 转换结果的小数位精度                |
+| `unit`          | `'vw' \| 'vmin'` | `'vw'` | 转换目标单位                        |
+| `minPixelValue` | `number`         | `1`    | 最小转换值阈值 (px)，小于此值不转换 |
 
 ## 转换示例
 
@@ -154,12 +158,12 @@ export default defineConfig({
 
 ### px 转换
 
-- 公式：`(px值 / 视口宽度) * 100 + 单位`
+- 公式：`(px值 / 设计稿宽度) * 100 + 单位`
 - 示例：`10px` → `(10 / 375) * 100 = 2.66667vw`
 
 ### rem 转换
 
-- 公式：`((rem值 * 基础字体大小) / 视口宽度) * 100 + 单位`
+- 公式：`((rem值 * 基础字体大小) / 设计稿宽度) * 100 + 单位`
 - 示例：`1rem` → `((1 * 16) / 375) * 100 = 4.26667vw`
 
 ## API 文档
@@ -178,7 +182,7 @@ interface PluginOptions {
    * 设计稿宽度
    * @default 375
    */
-  viewportWidth?: number
+  designWidth?: number | (input: string) => number
   /**
    * 转换精度
    * @default 5
@@ -194,6 +198,11 @@ interface PluginOptions {
    * @default vw
    */
   unit?: 'vw' | 'vmin'
+  /**
+   * 最小转换值阈值 (px)，小于此值的单位不会被转换
+   * @default 1
+   */
+  minPixelValue?: number
 }
 ```
 
