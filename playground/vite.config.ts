@@ -10,7 +10,12 @@ export default defineConfig({
     postcss: {
       plugins: [
         postcssPxRemToViewport({
-          designWidth: 375,
+          designWidth: (input) => {
+            if (input?.file?.indexOf('vant') !== -1) {
+              return 375
+            }
+            return 750
+          },
           baseFontSize: 16,
           unitPrecision: 5,
           unit: 'vw',
