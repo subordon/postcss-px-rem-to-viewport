@@ -110,13 +110,13 @@ export default defineConfig({
 
 ## Configuration Options
 
-| Option          | Type             | Default | Description                                                         |
-| --------------- | ---------------- | ------- | ------------------------------------------------------------------- |
-| `designWidth`   | `number`         | `375`   | Design draft width (px)                                             |
-| `baseFontSize`  | `number`         | `16`    | Root element font size (px), used for rem conversion                |
-| `unitPrecision` | `number`         | `5`     | Decimal precision of conversion result                              |
-| `unit`          | `'vw' \| 'vmin'` | `'vw'`  | Target conversion unit                                              |
-| `minPixelValue` | `number`         | `1`     | Minimum pixel value threshold, values below this won't be converted |
+| Option          | Type                                    | Default | Description                                                         |
+| --------------- | --------------------------------------- | ------- | ------------------------------------------------------------------- |
+| `designWidth`   | `number \| ((input?: Input) => number)` | `375`   | Design draft width (px)                                             |
+| `baseFontSize`  | `number`                                | `16`    | Root element font size (px), used for rem conversion                |
+| `unitPrecision` | `number`                                | `5`     | Decimal precision of conversion result                              |
+| `unit`          | `'vw' \| 'vmin'`                        | `'vw'`  | Target conversion unit                                              |
+| `minPixelValue` | `number`                                | `1`     | Minimum pixel value threshold, values below this won't be converted |
 
 ## Conversion Examples
 
@@ -182,7 +182,7 @@ interface PluginOptions {
    * Design draft width
    * @default 375
    */
-  designWidth?: number | (input: string) => number
+  designWidth?: number | ((input?: Input) => number)
   /**
    * Conversion precision
    * @default 5

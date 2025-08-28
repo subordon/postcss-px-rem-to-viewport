@@ -1,4 +1,4 @@
-import type { Root } from 'postcss'
+import type { Input, Root } from 'postcss'
 import { transform } from './utils'
 
 export interface PluginOptions {
@@ -6,7 +6,7 @@ export interface PluginOptions {
    * 设计稿宽度
    * @default 375
    */
-  designWidth?: number | ((input: string) => number)
+  designWidth?: number | ((input?: Input) => number)
   /**
    * 转换精度
    * @default 5
@@ -35,11 +35,12 @@ const plugin = (options: PluginOptions = {}) => {
   return {
     postcssPlugin: 'postcss-px-rem-to-viewport',
     Once(css: Root) {
-      const input = css.source?.input?.file || ''
+      const input = css.source?.input
+      const designWidthValue = typeof designWidth === 'function' ? designWidth(input) : designWidth
       css.walkDecls((decl) => {
         if (decl.value) {
           decl.value = transform(decl.value, {
-            designWidth: typeof designWidth === 'function' ? designWidth(input) : designWidth,
+            designWidth: designWidthValue,
             baseFontSize,
             unitPrecision,
             unit,

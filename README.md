@@ -110,13 +110,13 @@ export default defineConfig({
 
 ## 配置选项
 
-| 选项            | 类型             | 默认值 | 描述                                |
-| --------------- | ---------------- | ------ | ----------------------------------- |
-| `designWidth`   | `number`         | `375`  | 设计稿宽度 (px)                     |
-| `baseFontSize`  | `number`         | `16`   | 根元素字体大小 (px)，用于 rem 转换  |
-| `unitPrecision` | `number`         | `5`    | 转换结果的小数位精度                |
-| `unit`          | `'vw' \| 'vmin'` | `'vw'` | 转换目标单位                        |
-| `minPixelValue` | `number`         | `1`    | 最小转换值阈值 (px)，小于此值不转换 |
+| 选项            | 类型                                    | 默认值 | 描述                                |
+| --------------- | --------------------------------------- | ------ | ----------------------------------- |
+| `designWidth`   | `number \| ((input?: Input) => number)` | `375`  | 设计稿宽度 (px)                     |
+| `baseFontSize`  | `number`                                | `16`   | 根元素字体大小 (px)，用于 rem 转换  |
+| `unitPrecision` | `number`                                | `5`    | 转换结果的小数位精度                |
+| `unit`          | `'vw' \| 'vmin'`                        | `'vw'` | 转换目标单位                        |
+| `minPixelValue` | `number`                                | `1`    | 最小转换值阈值 (px)，小于此值不转换 |
 
 ## 转换示例
 
@@ -182,7 +182,7 @@ interface PluginOptions {
    * 设计稿宽度
    * @default 375
    */
-  designWidth?: number | (input: string) => number
+  designWidth?: number | ((input?: Input) => number)
   /**
    * 转换精度
    * @default 5
