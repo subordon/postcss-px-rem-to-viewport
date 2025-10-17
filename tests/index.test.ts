@@ -1,16 +1,16 @@
 import { describe, expect, test } from 'vitest'
 import postcss from 'postcss'
-import { type PluginOptions } from '../src'
+import { type PluginOptions, type TransformOptions } from '../src'
 import plugin from '../src'
 import { transform } from '../src/utils'
 
-const defaultOptions = {
-  designWidth: 375,
+const defaultOptions: TransformOptions = {
+  viewportRatio: 100 / 375,
   baseFontSize: 16,
   unitPrecision: 5,
   unit: 'vw',
   minPixelValue: 0
-} satisfies PluginOptions
+}
 
 describe('transform utility', () => {
   test('px -> vw', () => {
@@ -51,27 +51,27 @@ describe('transform utility', () => {
 
 describe('configuration options', () => {
   test('different design width', () => {
-    const options = { ...defaultOptions, designWidth: 750 }
+    const options: TransformOptions = { ...defaultOptions, viewportRatio: 100 / 750 }
     expect(transform('75px', options)).toBe('10vw')
   })
 
   test('different base font size', () => {
-    const options = { ...defaultOptions, baseFontSize: 20 }
+    const options: TransformOptions = { ...defaultOptions, baseFontSize: 20 }
     expect(transform('1rem', options)).toBe('5.33333vw')
   })
 
   test('different unit precision', () => {
-    const options = { ...defaultOptions, unitPrecision: 2 }
+    const options: TransformOptions = { ...defaultOptions, unitPrecision: 2 }
     expect(transform('160px', options)).toBe('42.67vw')
   })
 
   test('vmin unit', () => {
-    const options = { ...defaultOptions, unit: 'vmin' as const }
+    const options: TransformOptions = { ...defaultOptions, unit: 'vmin' as const }
     expect(transform('160px', options)).toBe('42.66667vmin')
   })
 
   test('minPixelValue threshold for px', () => {
-    const options = { ...defaultOptions, minPixelValue: 2 }
+    const options: TransformOptions = { ...defaultOptions, minPixelValue: 2 }
     expect(transform('1px', options)).toBe('1px') // 小于阈值，不转换
     expect(transform('-1.5px', options)).toBe('-1.5px') // 绝对值小于阈值，不转换
     expect(transform('2px', options)).toBe('0.53333vw') // 等于阈值，转换
@@ -79,14 +79,14 @@ describe('configuration options', () => {
   })
 
   test('minPixelValue threshold for rem', () => {
-    const options = { ...defaultOptions, minPixelValue: 10, baseFontSize: 16 }
+    const options: TransformOptions = { ...defaultOptions, minPixelValue: 10, baseFontSize: 16 }
     expect(transform('0.5rem', options)).toBe('0.5rem') // 0.5 * 16 = 8px < 10px，不转换
     expect(transform('0.625rem', options)).toBe('2.66667vw') // 0.625 * 16 = 10px >= 10px，转换
     expect(transform('1rem', options)).toBe('4.26667vw') // 1 * 16 = 16px > 10px，转换
   })
 
   test('minPixelValue with mixed values', () => {
-    const options = { ...defaultOptions, minPixelValue: 2 }
+    const options: TransformOptions = { ...defaultOptions, minPixelValue: 2 }
     expect(transform('1px 3px 1.5px 4px', options)).toBe('1px 0.8vw 1.5px 1.06667vw')
     expect(transform('margin: 1px 10px', options)).toBe('margin: 1px 2.66667vw')
   })

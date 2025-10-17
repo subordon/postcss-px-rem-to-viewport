@@ -1,32 +1,15 @@
 import type { Input, Root } from 'postcss'
-import { transform } from './utils'
+import { transform, type TransformBaseOptions, type TransformOptions } from './utils'
 
-export interface PluginOptions {
+/**
+ * 插件配置选项
+ */
+export interface PluginOptions extends Partial<TransformBaseOptions> {
   /**
    * 设计稿宽度
    * @default 375
    */
   designWidth?: number | ((input?: Input) => number)
-  /**
-   * 转换精度
-   * @default 5
-   */
-  unitPrecision?: number
-  /**
-   * 根元素字体大小 (1rem = ?px)
-   * @default 16
-   */
-  baseFontSize?: number
-  /**
-   * 转换单位
-   * @default vw
-   */
-  unit?: 'vw' | 'vmin'
-  /**
-   * 最小转换值阈值 (px)，小于此值的单位不会被转换
-   * @default 1
-   */
-  minPixelValue?: number
 }
 
 const plugin = (options: PluginOptions = {}) => {
@@ -37,16 +20,24 @@ const plugin = (options: PluginOptions = {}) => {
     Once(css: Root) {
       const input = css.source?.input
       const designWidthValue = typeof designWidth === 'function' ? designWidth(input) : designWidth
+
+      // 预计算 viewportRatio 和创建一次配置对象,避免重复计算和对象创建
+      const viewportRatio = 100 / designWidthValue
+      const transformOptions: TransformOptions = {
+        viewportRatio,
+        baseFontSize,
+        unitPrecision,
+        unit,
+        minPixelValue
+      }
+
       css.walkDecls((decl) => {
-        if (decl.value) {
-          decl.value = transform(decl.value, {
-            designWidth: designWidthValue,
-            baseFontSize,
-            unitPrecision,
-            unit,
-            minPixelValue
-          })
+        // 提前过滤:避免处理不包含 px 或 rem 的声明
+        if (!decl.value || (!decl.value.includes('px') && !decl.value.includes('rem'))) {
+          return
         }
+
+        decl.value = transform(decl.value, transformOptions)
       })
     }
   }
@@ -55,3 +46,4 @@ const plugin = (options: PluginOptions = {}) => {
 plugin.postcss = true
 
 export default plugin
+export type { TransformBaseOptions, TransformOptions } from './utils'
